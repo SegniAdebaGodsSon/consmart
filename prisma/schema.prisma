@@ -1,43 +1,47 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
+enum ProjectType {
+    RESIDENTIAL_CONSTRUCTION
+    HEAVY_CONSTRUCTION
+    INDUSTRIAL_CONSTRUCTION
+    COMMERTIAL_CONSTRUCTION
+}
+
+enum UserRole {
+    ADMIN
+    USER
+}
+
 generator client {
-    provider = "prisma-client-js"
+    provider        = "prisma-client-js"
     previewFeatures = ["jsonProtocol"]
 }
 
 datasource db {
-    provider = "sqlite"
-    // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below
-    // Further reading:
-    // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
-    // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
-    url      = env("DATABASE_URL")
-}
-
-model Example {
-    id        String   @id @default(cuid())
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    provider     = "mysql"
+    url          = env("DATABASE_URL")
+    relationMode = "prisma"
 }
 
 // Necessary for Next auth
 model Account {
     id                String  @id @default(cuid())
-    userId            String
+    userId            String 
     type              String
     provider          String
     providerAccountId String
-    refresh_token     String? // @db.Text
-    access_token      String? // @db.Text
+    refresh_token     String?  @db.Text
+    access_token      String?  @db.Text
     expires_at        Int?
     token_type        String?
     scope             String?
-    id_token          String? // @db.Text
+    id_token          String?  @db.Text
     session_state     String?
     user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     @@unique([provider, providerAccountId])
+    @@index([userId])
 }
 
 model Session {
@@ -46,16 +50,21 @@ model Session {
     userId       String
     expires      DateTime
     user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([userId])
 }
 
 model User {
-    id            String    @id @default(cuid())
-    name          String?
-    email         String?   @unique
-    emailVerified DateTime?
-    image         String?
-    accounts      Account[]
-    sessions      Session[]
+    id                     String    @id @default(cuid())
+    name                   String?
+    email                  String?   @unique
+    emailVerified          DateTime?
+    image                  String?
+    accounts               Account[]
+    sessions               Session[]
+    contractorRoleProjects Project[] @relation(name: "ContractorRoleProjectRelation")
+    consultantRoleProjects Project[] @relation(name: "ConsultantRoleProjectRelation")
+    managerRoleProjects    Site[]    @relation(name: "ManagerRoleProjectRelation")
 }
 
 model VerificationToken {
@@ -64,4 +73,46 @@ model VerificationToken {
     expires    DateTime
 
     @@unique([identifier, token])
+}
+
+model Project {
+    id           String      @id @default(cuid())
+    name         String      @db.VarChar(255)
+    type         ProjectType @default(RESIDENTIAL_CONSTRUCTION)
+    contractor   User        @relation(name: "ContractorRoleProjectRelation", fields: [contractorId], references: [id])
+    contractorId String      @db.VarChar(255)
+    consultant   User        @relation(name: "ConsultantRoleProjectRelation", fields: [consultantId], references: [id])
+    consultantId String      @db.VarChar(255)
+    sites        Site[]      @relation(name: "ProjectSiteRelation")
+    startDate    DateTime    @default(now())
+    endDate      DateTime
+
+    @@index([contractorId])
+    @@index([consultantId])
+}
+
+model Site {
+    id        String     @id @default(cuid())
+    name      String     @db.VarChar(255)
+    location  String     @db.VarChar(255)
+    schedule  Json
+    manager   User       @relation(name: "ManagerRoleProjectRelation", fields: [managerId], references: [id])
+    managerId String     @db.VarChar(255)
+    project   Project    @relation(name: "ProjectSiteRelation", fields: [projectId], references: [id])
+    projectId String     @db.VarChar(255)
+    materials Material[] @relation(name: "SiteMaterialRelation")
+
+    @@index([managerId])
+    @@index([projectId])
+}
+
+model Material {
+    id     String @id @default(cuid())
+    name   String @db.VarChar(255)
+    amount Float
+    unit   String @db.VarChar(255)
+    site   Site   @relation(name: "SiteMaterialRelation", fields: [siteId], references: [id])
+    siteId String @db.VarChar(255)
+
+    @@index([siteId])
 }
