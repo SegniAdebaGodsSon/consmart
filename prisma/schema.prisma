@@ -1,11 +1,14 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 enum ProjectType {
     RESIDENTIAL_CONSTRUCTION
     HEAVY_CONSTRUCTION
     INDUSTRIAL_CONSTRUCTION
     COMMERTIAL_CONSTRUCTION
+}
+
+enum ProjectStatus {
+    ACCEPTED
+    PENDING
+    REJECTED
 }
 
 enum UserRole {
@@ -19,24 +22,23 @@ generator client {
 }
 
 datasource db {
-    provider     = "mysql"
+    provider     = "postgresql"
     url          = env("DATABASE_URL")
-    relationMode = "prisma"
 }
 
 // Necessary for Next auth
 model Account {
     id                String  @id @default(cuid())
-    userId            String 
+    userId            String
     type              String
     provider          String
     providerAccountId String
-    refresh_token     String?  @db.Text
-    access_token      String?  @db.Text
+    refresh_token     String? @db.Text
+    access_token      String? @db.Text
     expires_at        Int?
     token_type        String?
     scope             String?
-    id_token          String?  @db.Text
+    id_token          String? @db.Text
     session_state     String?
     user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -58,6 +60,7 @@ model User {
     id                     String    @id @default(cuid())
     name                   String?
     email                  String?   @unique
+    role                   UserRole  @default(USER)
     emailVerified          DateTime?
     image                  String?
     accounts               Account[]
@@ -76,15 +79,17 @@ model VerificationToken {
 }
 
 model Project {
-    id           String      @id @default(cuid())
-    name         String      @db.VarChar(255)
-    type         ProjectType @default(RESIDENTIAL_CONSTRUCTION)
-    contractor   User        @relation(name: "ContractorRoleProjectRelation", fields: [contractorId], references: [id])
-    contractorId String      @db.VarChar(255)
-    consultant   User        @relation(name: "ConsultantRoleProjectRelation", fields: [consultantId], references: [id])
-    consultantId String      @db.VarChar(255)
-    sites        Site[]      @relation(name: "ProjectSiteRelation")
-    startDate    DateTime    @default(now())
+    id           String        @id @default(cuid())
+    name         String        @db.VarChar(255)
+    description  String        @db.VarChar(255)
+    type         ProjectType   @default(RESIDENTIAL_CONSTRUCTION)
+    status       ProjectStatus @default(PENDING)
+    contractor   User          @relation(name: "ContractorRoleProjectRelation", fields: [contractorId], references: [id])
+    contractorId String        @db.VarChar(255)
+    consultant   User          @relation(name: "ConsultantRoleProjectRelation", fields: [consultantId], references: [id])
+    consultantId String        @db.VarChar(255)
+    sites        Site[]        @relation(name: "ProjectSiteRelation")
+    startDate    DateTime      @default(now())
     endDate      DateTime
 
     @@index([contractorId])

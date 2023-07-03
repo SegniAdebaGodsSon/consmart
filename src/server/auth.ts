@@ -4,11 +4,15 @@ import {
   getServerSession,
   type NextAuthOptions,
   type DefaultSession,
+  CustomUser,
+  Session,
 } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import EmailProvider from "next-auth/providers/email";
 import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
+import { UserRole } from "~/common/types";
+import { AdapterUser } from "next-auth/adapters";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -18,17 +22,12 @@ import { prisma } from "~/server/db";
  */
 declare module "next-auth" {
   interface Session extends DefaultSession {
-    user: {
-      id: string;
-      // ...other properties
-      // role: UserRole;
-    } & DefaultSession["user"];
+    user: CustomUser;
   }
 
-  // interface User {
-  //   // ...other properties
-  //   // role: UserRole;
-  // }
+  interface CustomUser extends AdapterUser {
+    role: UserRole;
+  }
 }
 
 /**
@@ -38,13 +37,26 @@ declare module "next-auth" {
  */
 export const authOptions: NextAuthOptions = {
   callbacks: {
-    session: ({ session, user }) => ({
+    //  signIn({ user }) {
+    //   const customUser = user as CustomUser;
+    //   console.log("User signed in: ", customUser);
+    //   if (customUser.role === UserRole.ADMIN) {
+    //     return '/admin';
+    //   } else {
+    //     return '/home';
+    //   }
+    // },
+    session: ({ session, user }) => {
+      const customUser = user as CustomUser;
+      return {
       ...session,
       user: {
         ...session.user,
         id: user.id,
+        role: customUser.role 
       },
-    }),
+      }
+    },
   },
   adapter: PrismaAdapter(prisma),
   providers: [
@@ -54,14 +66,14 @@ export const authOptions: NextAuthOptions = {
     }),
     EmailProvider({
       server: {
-        host: process.env.EMAIL_SERVER_HOST,
-        port: process.env.EMAIL_SERVER_PORT,
+        host: env.EMAIL_SERVER_HOST,
+        port: env.EMAIL_SERVER_PORT,
         auth: {
-          user: process.env.EMAIL_SERVER_USER,
-          pass: process.env.EMAIL_SERVER_PASSWORD
+          user: env.EMAIL_SERVER_USER,
+          pass: env.EMAIL_SERVER_PASSWORD
         }
       },
-      from: process.env.EMAIL_FROM
+      from: env.EMAIL_FROM
     }),
   ],
 };
