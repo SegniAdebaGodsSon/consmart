@@ -1,3 +1,4 @@
+import { useSession } from "next-auth/react";
 import { MutableRefObject, useRef, useState } from "react";
 import { RouterOutputs, api } from "~/utils/api";
 
@@ -5,7 +6,7 @@ type UserType = RouterOutputs["user"]["searchUser"][number];
 
 export default function SearchUsers(props: { placeholder: string, contractorIdRef: MutableRefObject<string | undefined> }) {
     const { placeholder, contractorIdRef } = props;
-
+    const session = useSession();
     const [showUsers, setShowUsers] = useState<boolean>(false);
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -97,7 +98,7 @@ function UsersContainer(props: { users: UserType[], isLoading: boolean, handleUs
     return <div className="p-4 flex flex-col gap-1 shadow-2xl rounded-lg mt-4 max-w-sm">
         {
             users.map(user => (
-                <User user={user} handleUserClick={handleUserClick} />
+                <User key={user.id} user={user} handleUserClick={handleUserClick} />
             ))
         }
     </div>

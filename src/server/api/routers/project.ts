@@ -1,13 +1,17 @@
 import { ProjectStatus, ProjectType } from "@prisma/client";
-import { z } from "zod";
+import { ZodError, z } from "zod";
 import { adminProcedure, createTRPCRouter, protectedProcedure, publicProcedure } from "~/server/api/trpc";
 
 const validateDateRange = (obj: any) => {
     if (obj.startDate <= new Date()) {
-        return { message: "Start date must be in the future" };
+        throw new ZodError([{ path: ["startDate"], code: z.ZodIssueCode.invalid_date, message: "Start date must be in the future" }])
     }
     if (obj.endDate <= obj.startDate) {
-        return { message: "End date must be after start date" };
+        throw new ZodError([{ path: ["endDate"], code: z.ZodIssueCode.invalid_date, message: "End date must be after start date" }])
+    }
+
+    if (!obj.contractorId) {
+        throw new ZodError([{ path: ["contractorId"], code: z.ZodIssueCode.custom, message: "Contractor not chosen" }])
     }
     return true;
 };
@@ -21,21 +25,21 @@ export const projectRoueter = createTRPCRouter({
                 type: z.nativeEnum(ProjectType),
                 contractorId: z.string().cuid(),
                 startDate: z.date(),
-                endDate: z.date(),
+                endDate: z.date()
             })
                 .refine(validateDateRange))
         .mutation(async ({ ctx, input }) => {
             const currUserId = ctx.session.user.id;
             const { name, description, type, contractorId, startDate, endDate } = input;
 
-            const contractor = await ctx.prisma.project.findFirst({
+            const contractor = await ctx.prisma.user.findFirst({
                 where: {
                     id: contractorId,
                 },
             });
 
             if (!contractor) {
-                throw new Error('Contractor not found');
+                throw new ZodError([{ path: ["contractorId"], code: z.ZodIssueCode.custom, message: "Contractor not found" }])
             }
 
             return ctx.prisma.project.create({

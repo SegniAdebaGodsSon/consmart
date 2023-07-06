@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "next-auth/react";
 import { UserRole } from "@prisma/client";
 
+
+export { default } from "next-auth/middleware"
+
 // only runs on pages except the landing page "/"
 export const config = {
     matcher: [
@@ -10,8 +13,8 @@ export const config = {
 }
 
 export async function middleware(request: NextRequest, response: NextResponse) {
-    const { pathname } = request.nextUrl;
-    const matchesAdminPath = pathname.startsWith("/admin");
+    // const { pathname } = request.nextUrl;
+    // const matchesAdminPath = pathname.startsWith("/admin");
 
     // Authentication 
     // const session = await getSession();
