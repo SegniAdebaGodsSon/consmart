@@ -22,8 +22,8 @@ generator client {
 }
 
 datasource db {
-    provider     = "postgresql"
-    url          = env("DATABASE_URL")
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
 }
 
 // Necessary for Next auth
@@ -91,6 +91,8 @@ model Project {
     sites        Site[]        @relation(name: "ProjectSiteRelation")
     startDate    DateTime      @default(now())
     endDate      DateTime
+    createdAt    DateTime      @default(now())
+    updatedAt    DateTime      @updatedAt
 
     @@index([contractorId])
     @@index([consultantId])
@@ -106,18 +108,22 @@ model Site {
     project   Project    @relation(name: "ProjectSiteRelation", fields: [projectId], references: [id])
     projectId String     @db.VarChar(255)
     materials Material[] @relation(name: "SiteMaterialRelation")
+    createdAt DateTime   @default(now())
+    updatedAt DateTime   @updatedAt
 
     @@index([managerId])
     @@index([projectId])
 }
 
 model Material {
-    id     String @id @default(cuid())
-    name   String @db.VarChar(255)
-    amount Float
-    unit   String @db.VarChar(255)
-    site   Site   @relation(name: "SiteMaterialRelation", fields: [siteId], references: [id])
-    siteId String @db.VarChar(255)
+    id        String   @id @default(cuid())
+    name      String   @db.VarChar(255)
+    amount    Float
+    unit      String   @db.VarChar(255)
+    site      Site     @relation(name: "SiteMaterialRelation", fields: [siteId], references: [id])
+    siteId    String   @db.VarChar(255)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 
     @@index([siteId])
 }

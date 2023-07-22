@@ -68,83 +68,106 @@ export const projectRoueter = createTRPCRouter({
             })
         }),
 
-    getAllWhereRoleIsConsultant: protectedProcedure
+    getAll: protectedProcedure
         .input(z.object({
             page: z.number().min(1),
             limit: z.number().min(1),
+            search: z.string(),
             orderBy: z.enum(['latest', 'urgent']),
-            status: z.nativeEnum(ProjectStatus).optional()
+            role: z.enum(['consultant', 'contractor', 'site manager', 'all']),
+            status: z.enum(['PENDING', 'ACCEPTED', 'REJECTED', 'ALL'])
         }))
         .query(async ({ ctx, input }) => {
             const currUserId = ctx.session.user.id;
-            const { page, limit, orderBy, status } = input;
-            const projects = ctx.prisma.project.findMany({
-                take: limit,
-                skip: (page - 1) * limit,
-                orderBy: {
-                    startDate: orderBy === "latest" ? 'desc' : undefined,
-                    endDate: orderBy === "urgent" ? 'asc' : undefined
-                },
-                where: {
-                    status: status || undefined,
-                    consultantId: currUserId
-                }
-            });
-            return projects;
-        }),
+            const { page, limit, search, orderBy, role, status } = input;
 
-    getAllWhereRoleIsContractor: protectedProcedure
-        .input(z.object({
-            page: z.number().min(1),
-            limit: z.number().min(1),
-            orderBy: z.enum(['latest', 'urgent']),
-            status: z.nativeEnum(ProjectStatus).optional()
-        }))
-        .query(async ({ ctx, input }) => {
-            const currUserId = ctx.session.user.id;
-            const { page, limit, orderBy, status } = input;
-            const projects = ctx.prisma.project.findMany({
-                take: limit,
-                skip: (page - 1) * limit,
-                orderBy: {
-                    startDate: orderBy === "latest" ? 'desc' : undefined,
-                    endDate: orderBy === "urgent" ? 'asc' : undefined
-                },
-                where: {
-                    status: status || undefined,
-                    contractorId: currUserId
-                }
-            });
-            return projects;
-        }),
+            let where = {};
 
-    getAllWhereRoleIsSiteManager: protectedProcedure
-        .input(z.object({
-            page: z.number().min(1),
-            limit: z.number().min(1),
-            orderBy: z.enum(['latest', 'urgent']),
-            status: z.nativeEnum(ProjectStatus).optional()
-        }))
-        .query(async ({ ctx, input }) => {
-            const currUserId = ctx.session.user.id;
-            const { page, limit, orderBy, status } = input;
-            const projects = ctx.prisma.project.findMany({
-                take: limit,
-                skip: (page - 1) * limit,
-                orderBy: {
-                    startDate: orderBy === "latest" ? 'desc' : undefined,
-                    endDate: orderBy === "urgent" ? 'asc' : undefined
-                },
-                where: {
-                    status: status || undefined,
+            if (role === 'consultant') {
+                where = {
+                    status: status === 'ALL' ? undefined : status,
+                    consultantId: currUserId,
+                    OR: [
+                        { name: { contains: search } },
+                        { description: { contains: search } }
+                    ]
+                }
+            }
+
+            if (role === 'contractor') {
+                where = {
+                    status: status === 'ALL' ? undefined : status,
+                    contractorId: currUserId,
+                    OR: [
+                        { name: { contains: search } },
+                        { description: { contains: search } }
+                    ]
+                }
+            }
+
+            if (role === 'site manager') {
+                where = {
+                    status: status === 'ALL' ? undefined : status,
                     sites: {
                         some: {
                             managerId: currUserId
                         }
-                    }
+                    },
+                    OR: [
+                        { name: { contains: search } },
+                        { description: { contains: search } }
+                    ]
+                }
+            }
+
+            if (role === 'all') {
+                where = {
+                    status: status === 'ALL' ? undefined : status,
+                    OR: [
+                        { name: { contains: search } },
+                        { description: { contains: search } },
+                        { consultantId: currUserId },
+                        { contractorId: currUserId },
+                        {
+                            sites: {
+                                some: {
+                                    managerId: currUserId
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+
+            const projects = await ctx.prisma.project.findMany({
+                take: limit,
+                skip: (page - 1) * limit,
+                orderBy: {
+                    startDate: orderBy === "latest" ? 'desc' : undefined,
+                    endDate: orderBy === "urgent" ? 'asc' : undefined
+                },
+                where,
+                include: {
+                    consultant: true,
+                    contractor: true,
                 }
             });
-            return projects;
+
+            const count = await ctx.prisma.project.count({
+                take: limit,
+                skip: (page - 1) * limit,
+                orderBy: {
+                    startDate: orderBy === "latest" ? 'desc' : undefined,
+                    endDate: orderBy === "urgent" ? 'asc' : undefined
+                },
+                where
+            });
+
+
+            return {
+                projects,
+                total: count
+            };
         }),
 
     // getUsersInProject: protectedProcedure
@@ -162,11 +185,11 @@ export const projectRoueter = createTRPCRouter({
         .input(z.object({
             page: z.number().min(1),
             limit: z.number().min(1),
+            search: z.string(),
             orderBy: z.enum(['latest', 'urgent']),
-            status: z.nativeEnum(ProjectStatus).optional()
         }))
         .query(async ({ ctx, input }) => {
-            const { page, limit, orderBy, status } = input;
+            const { page, limit, orderBy, search } = input;
             const projects = ctx.prisma.project.findMany({
                 take: limit,
                 skip: (page - 1) * limit,
@@ -175,7 +198,11 @@ export const projectRoueter = createTRPCRouter({
                     endDate: orderBy === "urgent" ? 'asc' : undefined
                 },
                 where: {
-                    status: status || undefined
+                    status: "PENDING",
+                    OR: [
+                        { name: { contains: search } },
+                        { description: { contains: search } },
+                    ]
                 }
             });
             return projects;

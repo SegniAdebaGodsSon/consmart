@@ -1,8 +1,11 @@
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
+import { useRouter } from "next/router";
+import { UserRole } from "~/common/types";
 
 export default function NavbarComponent() {
     const { data: session } = useSession();
+    const router = useRouter();
     let avatarText = "";
 
     if (session?.user.email) {
@@ -12,13 +15,33 @@ export default function NavbarComponent() {
     if (session?.user.name) {
         avatarText = session.user.name.charAt(0);
     }
+
+    function logout() {
+        signOut();
+        router.push('/');
+    }
     return (
-        <nav>
+        <nav className="shadow-md">
             <div className="navbar bg-base-100">
                 <div className="flex-1">
                     <Link className="btn btn-ghost normal-case text-xl" href="/">Consmart</Link>
                 </div>
-                <div className="flex-none gap-2">
+
+                <div className="flex gap-5">
+                    <div className="flex gap-2">
+                        {
+                            session && session.user.role === UserRole.USER &&
+                            <Link className="btn" href={'/project'}>Projects</Link>
+                        }
+                        {
+                            session && session.user.role === UserRole.ADMIN &&
+                            <Link className="btn" href={'/admin/project'}>Projects</Link>
+                        }
+                        {
+                            session && session.user.role === UserRole.ADMIN &&
+                            <Link className="btn" href={'/admin/user'}>Users</Link>
+                        }
+                    </div>
                     {
                         session ?
                             <div className="dropdown dropdown-end">
@@ -40,7 +63,7 @@ export default function NavbarComponent() {
                                 </label>
                                 <ul tabIndex={0} className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52">
                                     <li><Link href="/profile">Profile</Link></li>
-                                    <li><a onClick={() => void signOut()}>Sign out</a></li>
+                                    <li><a onClick={() => logout()}>Sign out</a></li>
                                 </ul>
                             </div>
                             :

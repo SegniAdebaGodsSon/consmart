@@ -1,10 +1,12 @@
 import { ProjectType } from "@prisma/client";
+import { useRouter } from "next/router";
 import { useRef, useState } from "react";
 import Datepicker from "react-tailwindcss-datepicker";
 import { DateValueType } from "react-tailwindcss-datepicker/dist/types";
 import Alert from "~/components/common/Alert";
 import SearchUsers from "~/components/common/searchUsers";
 import { api } from "~/utils/api";
+import { RiArrowGoBackFill } from 'react-icons/ri';
 
 export default function Create() {
     const [dateRange, setDateRange] = useState<DateValueType>(null);
@@ -12,6 +14,8 @@ export default function Create() {
     const nameRef = useRef<HTMLInputElement | null>(null);
     const descriptionRef = useRef<HTMLTextAreaElement | null>(null);
     const typeRef = useRef<HTMLSelectElement | null>(null);
+
+    const router = useRouter();
 
     const { mutate, data, isLoading, error, isSuccess } = api.project.create.useMutation()
 
@@ -33,6 +37,10 @@ export default function Create() {
         mutate(data as any);
     }
 
+    setTimeout(() => {
+        if (isSuccess) router.push('/project');
+    }, 1000)
+
     return (
         <main className="">
 
@@ -43,12 +51,14 @@ export default function Create() {
                 error && <Alert duration={3000} message="Error creating a project!" type="error" />
             }
 
-            <header>
-                <h1 className="text-4xl mt-6">Create new project</h1>
+            <header className="flex items-center mt-4 gap-4">
+                <button className="btn btn-neutral" onClick={() => router.back()}>
+                    <RiArrowGoBackFill />
+                </button>
             </header>
 
-            <section className="flex w-full items-center justify-center flex-col my-16">
-
+            <section className="flex w-full items-center justify-center flex-col my-4">
+                <h1 className="text-2xl font-bold">Create new project</h1>
                 <form className="flex flex-col gap-5 w-96 shadow-2xl p-8">
                     <div className="form-control w-full max-w-xs">
                         <label className="label">
@@ -116,7 +126,18 @@ export default function Create() {
                     </div>
 
                     <div className="form-control w-max">
-                        <button className="btn btn-outline btn-primary" disabled={isLoading ? true : false} onClick={handleSubmit}>Create</button>
+                        <button className="btn btn-outline btn-primary" disabled={isLoading ? true : false} onClick={handleSubmit}>
+                            {isLoading ?
+                                <>
+                                    Creating{" "}
+                                    <span className="loading loading-ring loading-md"></span>
+                                </>
+                                :
+                                <>
+                                    Create{" "}
+                                </>
+                            }
+                        </button>
                     </div>
 
 
