@@ -10,6 +10,7 @@ import { RiArrowGoBackFill } from 'react-icons/ri';
 
 export default function Create() {
     const [dateRange, setDateRange] = useState<DateValueType>(null);
+    const ownerIdRef = useRef<string>();
     const contractorIdRef = useRef<string>();
     const nameRef = useRef<HTMLInputElement | null>(null);
     const descriptionRef = useRef<HTMLTextAreaElement | null>(null);
@@ -30,6 +31,7 @@ export default function Create() {
             description: descriptionRef.current?.value || "",
             type: typeRef.current?.value as ProjectType,
             contractorId: contractorIdRef.current || "",
+            ownerId: ownerIdRef.current || "",
             startDate: dateRange && dateRange.startDate ? new Date(dateRange.startDate.toString()) : undefined,
             endDate: dateRange && dateRange.endDate ? new Date(dateRange.endDate.toString()) : undefined
         }
@@ -97,9 +99,20 @@ export default function Create() {
 
                     <div className="form-control w-full max-w-xs">
                         <label className="label">
+                            <span className="label-text">Select owner</span>
+                        </label>
+                        <SearchUsers placeholder="search by email or username" userIdRef={ownerIdRef} />
+
+                        <label className="label">
+                            <span className="label-text text-error text-xs">{error?.data?.zodError?.fieldErrors.contractorId}</span>
+                        </label>
+                    </div>
+
+                    <div className="form-control w-full max-w-xs">
+                        <label className="label">
                             <span className="label-text">Select contractor</span>
                         </label>
-                        <SearchUsers placeholder="search by email or username" contractorIdRef={contractorIdRef} />
+                        <SearchUsers placeholder="search by email or username" userIdRef={contractorIdRef} />
 
                         <label className="label">
                             <span className="label-text text-error text-xs">{error?.data?.zodError?.fieldErrors.contractorId}</span>

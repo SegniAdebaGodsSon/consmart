@@ -24,13 +24,14 @@ export const projectRoueter = createTRPCRouter({
                 description: z.string().min(10, { message: "Project description must be 5 or more characters long" }).max(255, { message: "Project description must be 255 or fewer characters long" }),
                 type: z.nativeEnum(ProjectType),
                 contractorId: z.string().cuid(),
+                ownerId: z.string().cuid(),
                 startDate: z.date(),
                 endDate: z.date()
             })
                 .refine(validateDateRange))
         .mutation(async ({ ctx, input }) => {
             const currUserId = ctx.session.user.id;
-            const { name, description, type, contractorId, startDate, endDate } = input;
+            const { name, description, type, contractorId, ownerId, startDate, endDate } = input;
 
             const contractor = await ctx.prisma.user.findFirst({
                 where: {
@@ -49,6 +50,7 @@ export const projectRoueter = createTRPCRouter({
                     type,
                     contractorId,
                     consultantId: currUserId,
+                    ownerId,
                     startDate,
                     endDate
                 }
@@ -64,6 +66,11 @@ export const projectRoueter = createTRPCRouter({
             return ctx.prisma.project.findFirst({
                 where: {
                     id
+                },
+                include: {
+                    consultant: true,
+                    contractor: true,
+                    owner: true
                 }
             })
         }),
@@ -190,7 +197,27 @@ export const projectRoueter = createTRPCRouter({
         }))
         .query(async ({ ctx, input }) => {
             const { page, limit, orderBy, search } = input;
-            const projects = ctx.prisma.project.findMany({
+            const projects = await ctx.prisma.project.findMany({
+                take: limit,
+                skip: (page - 1) * limit,
+                orderBy: {
+                    startDate: orderBy === "latest" ? 'desc' : undefined,
+                    endDate: orderBy === "urgent" ? 'asc' : undefined
+                },
+                where: {
+                    status: "PENDING",
+                    OR: [
+                        { name: { contains: search, mode: 'insensitive' } },
+                        { description: { contains: search, mode: 'insensitive' } },
+                    ]
+                },
+                include: {
+                    consultant: true,
+                    contractor: true,
+                }
+            });
+
+            const count = await ctx.prisma.project.count({
                 take: limit,
                 skip: (page - 1) * limit,
                 orderBy: {
@@ -205,7 +232,11 @@ export const projectRoueter = createTRPCRouter({
                     ]
                 }
             });
-            return projects;
+
+            return {
+                projects,
+                total: count
+            };
         }),
 
     setStatusAdmin: adminProcedure
@@ -213,7 +244,7 @@ export const projectRoueter = createTRPCRouter({
             id: z.string().cuid(),
             action: z.enum(['reject', 'accept'])
         }))
-        .query(async ({ ctx, input }) => {
+        .mutation(async ({ ctx, input }) => {
             const { id, action } = input;
 
             const project = await ctx.prisma.project.findFirst({
@@ -251,6 +282,7 @@ export const projectRoueter = createTRPCRouter({
 
             return updatedProject;
         }),
+
 
 
 });

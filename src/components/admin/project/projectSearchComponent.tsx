@@ -37,7 +37,7 @@ export default function ProjectSearchComponent(props: { cb: (searchObject: Searc
             <form className="">
                 <div className="join flex flex-wrap">
                     <div>
-                        <input ref={searchRef} className="input input-bordered join-item" placeholder="Search..." />
+                        <input ref={searchRef} className="input input-bordered join-item" placeholder="Search project..." />
                     </div>
                     <div className="flex">
                         <label className="label">

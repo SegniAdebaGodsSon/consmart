@@ -4,8 +4,8 @@ import { RouterOutputs, api } from "~/utils/api";
 
 type UserType = RouterOutputs["user"]["searchUser"][number];
 
-export default function SearchUsers(props: { placeholder: string, contractorIdRef: MutableRefObject<string | undefined> }) {
-    const { placeholder, contractorIdRef } = props;
+export default function SearchUsers(props: { placeholder: string, userIdRef: MutableRefObject<string | undefined> }) {
+    const { placeholder, userIdRef } = props;
     const session = useSession();
     const [showUsers, setShowUsers] = useState<boolean>(false);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -14,7 +14,7 @@ export default function SearchUsers(props: { placeholder: string, contractorIdRe
         nameOrEmail: inputRef.current ? inputRef.current.value.trim() : ""
     })
 
-    const users = usersData as UserType[]
+    const users: UserType[] = usersData as UserType[]
 
     const handleUserClick = (user: UserType) => {
         if (inputRef.current) {
@@ -26,7 +26,7 @@ export default function SearchUsers(props: { placeholder: string, contractorIdRe
                 }
             }
         }
-        contractorIdRef.current = user.id;
+        userIdRef.current = user.id;
         setShowUsers(false);
     }
 

@@ -1,39 +1,29 @@
 import { useState } from "react";
-import ProjectSearchComponent, { SearchObject } from "~/components/user/project/searchComponent";
-import { BsHouseAddFill } from 'react-icons/bs';
+import ProjectCard from "~/components/admin/project/projectCard";
+import ProjectSearchComponent, { SearchObject } from "~/components/admin/project/projectSearchComponent";
 import { RiArrowGoBackFill } from 'react-icons/ri';
 import { api } from "~/utils/api";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import ProjectCard from "~/components/user/project/projectCard";
+import { useRouter } from "next/router";
 
 interface GetAllInput {
     page: number,
     limit: number,
     search: string,
     orderBy: 'latest' | 'urgent',
-    role: 'contractor' | 'consultant' | 'site manager' | 'all',
-    status: 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'ALL'
 }
 
-export default function ProjectPage() {
+export default function Page() {
     const [getAllInput, setGetAllInput] = useState<GetAllInput>({
         page: 1,
         limit: 25,
         search: '',
         orderBy: 'latest',
-        role: 'all',
-        status: 'ALL'
     })
 
-
-    const { data, isLoading, error, refetch } = api.project.getAll.useQuery(getAllInput);
-
+    const { data, isLoading, error, refetch } = api.project.getAllAdmin.useQuery(getAllInput);
     const router = useRouter();
 
     const handleSubmit = (searchObject: SearchObject) => {
-
         setGetAllInput((prevState: GetAllInput) => ({
             ...searchObject,
             page: prevState.page,
@@ -42,22 +32,23 @@ export default function ProjectPage() {
         refetch();
     }
 
-
-
     return (
-        <main>
-            <div className="my-3 flex justify-between">
+        <>
+            <section>
                 <button className="btn btn-neutral" onClick={() => router.back()}>
                     <RiArrowGoBackFill />
                 </button>
-
-                <Link className="btn btn-success" href={'/project/create'}><BsHouseAddFill /> New Project</Link>
-            </div>
-
-            <section className="flex justify-center mt-4">
+                <div className="my-3">
+                    <p className="text-3xl font-semibold">
+                        Projects Pending Approval
+                    </p>
+                </div>
+            </section>
+            <section className="flex justify-center">
                 <ProjectSearchComponent cb={handleSubmit} />
             </section>
-            <section className="mt-4">
+
+            <section>
                 {
                     isLoading &&
                     <div className="h-screen flex justify-center items-center">
@@ -72,17 +63,22 @@ export default function ProjectPage() {
                             <p>Total results: {data.total}</p>
                         </div>
                         <div className="">
+                            {
+                                data.projects.length === 0 &&
+                                <p className="text-center">
+                                    No projects found...
+                                </p>
+                            }
                             {data.projects.map((project, index) => (
-                                <>
-                                    <ProjectCard key={project.id} project={project} />
+                                <div key={project.id}>
+                                    <ProjectCard project={project} refetch={refetch} />
                                     <div className="divider"></div>
-                                </>
+                                </div>
                             ))}
                         </div>
                     </div>
                 }
-
             </section>
-        </main>
+        </>
     );
 }

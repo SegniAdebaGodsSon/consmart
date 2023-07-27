@@ -16,9 +16,14 @@ enum UserRole {
     USER
 }
 
+enum UserStatus {
+    NORMAL
+    BANNED
+}
+
 generator client {
     provider        = "prisma-client-js"
-    previewFeatures = ["jsonProtocol"]
+    previewFeatures = []
 }
 
 datasource db {
@@ -57,17 +62,20 @@ model Session {
 }
 
 model User {
-    id                     String    @id @default(cuid())
-    name                   String?
-    email                  String?   @unique
-    role                   UserRole  @default(USER)
+    id                     String     @id @default(cuid())
+    name                   String     @default("")
+    email                  String?    @unique
+    role                   UserRole   @default(USER)
+    status                 UserStatus @default(NORMAL)
     emailVerified          DateTime?
     image                  String?
     accounts               Account[]
     sessions               Session[]
-    contractorRoleProjects Project[] @relation(name: "ContractorRoleProjectRelation")
-    consultantRoleProjects Project[] @relation(name: "ConsultantRoleProjectRelation")
-    managerRoleProjects    Site[]    @relation(name: "ManagerRoleProjectRelation")
+    contractorRoleProjects Project[]  @relation(name: "ContractorRoleProjectRelation")
+    consultantRoleProjects Project[]  @relation(name: "ConsultantRoleProjectRelation")
+    managerRoleProjects    Site[]     @relation(name: "ManagerRoleProjectRelation")
+    ownerRoleProjects      Project[]  @relation(name: "OwnerRoleProjectRelation")
+    createdAt              DateTime   @default(now())
 }
 
 model VerificationToken {
@@ -88,6 +96,8 @@ model Project {
     contractorId String        @db.VarChar(255)
     consultant   User          @relation(name: "ConsultantRoleProjectRelation", fields: [consultantId], references: [id])
     consultantId String        @db.VarChar(255)
+    owner        User          @relation(name: "OwnerRoleProjectRelation", fields: [ownerId], references: [id])
+    ownerId      String        @db.VarChar(255)
     sites        Site[]        @relation(name: "ProjectSiteRelation")
     startDate    DateTime      @default(now())
     endDate      DateTime
@@ -96,6 +106,7 @@ model Project {
 
     @@index([contractorId])
     @@index([consultantId])
+    @@index([ownerId])
 }
 
 model Site {
