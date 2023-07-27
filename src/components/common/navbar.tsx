@@ -24,7 +24,18 @@ export default function NavbarComponent() {
         <nav className="shadow-md">
             <div className="navbar bg-base-100">
                 <div className="flex-1">
-                    <Link className="btn btn-ghost normal-case text-xl" href="/">Consmart</Link>
+                    {
+                        session && session.user.role === UserRole.USER &&
+                        <Link className="btn btn-ghost normal-case text-xl" href="/home">Consmart</Link>
+                    }
+                    {
+                        session && session.user.role === UserRole.ADMIN &&
+                        <Link className="btn btn-ghost normal-case text-xl" href="/admin">Consmart</Link>
+                    }
+                    {
+                        !session &&
+                        <Link className="btn btn-ghost normal-case text-xl" href="/">Consmart</Link>
+                    }
                 </div>
 
                 <div className="flex gap-5">
@@ -32,6 +43,10 @@ export default function NavbarComponent() {
                         {
                             session && session.user.role === UserRole.USER &&
                             <Link className="btn" href={'/project'}>Projects</Link>
+                        }
+                        {
+                            session && session.user.role === UserRole.ADMIN &&
+                            <Link className="btn" href={'/admin'}>Dashboard</Link>
                         }
                         {
                             session && session.user.role === UserRole.ADMIN &&
