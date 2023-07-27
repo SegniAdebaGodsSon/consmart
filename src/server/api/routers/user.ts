@@ -37,7 +37,7 @@ export const userRouter = createTRPCRouter({
             orderBy: z.enum(['latest', 'alphabet']),
         }))
         .query(async ({ ctx, input }) => {
-            let { page, limit, search, orderBy } = input;
+            const { page, limit, search, orderBy } = input;
             const userId = ctx.session.user.id;
 
             let users = await ctx.prisma.user.findMany({
