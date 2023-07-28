@@ -2,10 +2,14 @@ import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { UserRole } from "~/common/types";
+import DayNightToggle from 'react-day-and-night-toggle'
+import { useTheme } from "next-themes";
 
 export default function NavbarComponent() {
     const { data: session } = useSession();
     const router = useRouter();
+    const { theme, setTheme } = useTheme()
+
     let avatarText = "";
 
     if (session?.user.email) {
@@ -21,20 +25,20 @@ export default function NavbarComponent() {
         router.push('/');
     }
     return (
-        <nav className="shadow-md">
+        <nav className="shadow-xl container ">
             <div className="navbar bg-base-100">
-                <div className="flex-1">
+                <div className="flex-1 text-primary">
                     {
                         session && session.user.role === UserRole.USER &&
-                        <Link className="btn btn-ghost normal-case text-xl" href="/home">Consmart</Link>
+                        <Link className="btn btn-ghost normal-case text-3xl" href="/home">Consmart</Link>
                     }
                     {
                         session && session.user.role === UserRole.ADMIN &&
-                        <Link className="btn btn-ghost normal-case text-xl" href="/admin">Consmart</Link>
+                        <Link className="btn btn-ghost normal-case text-3xl" href="/admin">Consmart</Link>
                     }
                     {
                         !session &&
-                        <Link className="btn btn-ghost normal-case text-xl" href="/">Consmart</Link>
+                        <Link className="btn btn-ghost normal-case text-3xl" href="/">Consmart</Link>
                     }
                 </div>
 
@@ -86,7 +90,11 @@ export default function NavbarComponent() {
                                 <Link className="btn btn-primary" href={'/api/auth/signin'}>Sign in</Link>
                             </>
                     }
-
+                    <DayNightToggle
+                        onChange={() => setTheme(theme === "light" ? "dark" : "light")}
+                        checked={theme === "dark"}
+                        size={20}
+                    />
                 </div>
             </div>
         </nav>

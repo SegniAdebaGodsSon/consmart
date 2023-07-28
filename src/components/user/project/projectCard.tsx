@@ -1,6 +1,5 @@
 import { RouterOutputs } from "~/utils/api";
 import { BsFillCalendarRangeFill } from 'react-icons/bs';
-import { MdEngineering } from 'react-icons/md';
 import { useSession } from "next-auth/react";
 import moment from "moment";
 import Link from "next/link";
@@ -13,7 +12,7 @@ export default function ProjectCard(props: { project: ProjectType }) {
     const userId = session?.user.id;
 
     return (
-        <div className="p-4 shadow-lg hover:shadow-2xl transition-all duration-200 ease-linear flex gap-4 flex-col border-t-2 border-neutral/25">
+        <div className="p-8 shadow-lg hover:shadow-2xl transition-all duration-200 ease-linear flex gap-4 flex-col">
             <div className="flex justify-between">
                 <div className="flex items-center gap-4">
                     {

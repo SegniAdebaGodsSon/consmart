@@ -44,7 +44,7 @@ export default function Create() {
     }, 1000)
 
     return (
-        <main className="">
+        <main className="container">
 
             {
                 isSuccess && <Alert duration={3000} message="Project successfully created! (pending approval)" type="success" />

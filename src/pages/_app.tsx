@@ -6,6 +6,7 @@ import "~/styles/globals.css";
 import NavbarComponent from "~/components/common/navbar";
 import FooterComponent from "~/components/common/footer";
 import AuthGuard from "../components/common/AuthGuard";
+import { ThemeProvider } from "next-themes";
 
 
 const MyApp: AppType<{ session: Session | null }> = ({
@@ -17,9 +18,10 @@ const MyApp: AppType<{ session: Session | null }> = ({
   return (
     <SessionProvider session={session}>
       <AuthGuard>
-        <NavbarComponent />
-        <Component {...pageProps} />
-        <FooterComponent />
+        <ThemeProvider>
+          <NavbarComponent />
+          <Component {...pageProps} />
+          <FooterComponent /></ThemeProvider>
       </AuthGuard>
     </SessionProvider>
   );

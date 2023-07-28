@@ -45,7 +45,7 @@ export default function ProjectPage() {
 
 
     return (
-        <main>
+        <main className="container">
             <div className="my-3 flex justify-between">
                 <button className="btn btn-neutral" onClick={() => router.back()}>
                     <RiArrowGoBackFill />

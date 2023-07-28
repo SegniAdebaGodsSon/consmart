@@ -113,7 +113,7 @@ model Site {
     id        String     @id @default(cuid())
     name      String     @db.VarChar(255)
     location  String     @db.VarChar(255)
-    schedule  Json
+    tasks     Task[]     @relation(name: "SiteTasksRelation")
     manager   User       @relation(name: "ManagerRoleProjectRelation", fields: [managerId], references: [id])
     managerId String     @db.VarChar(255)
     project   Project    @relation(name: "ProjectSiteRelation", fields: [projectId], references: [id])
@@ -124,6 +124,18 @@ model Site {
 
     @@index([managerId])
     @@index([projectId])
+}
+
+model Task {
+    id        String   @id @default(cuid())
+    name      String   @db.VarChar(255)
+    detail    String   @db.VarChar(255)
+    site      Site     @relation(name: "SiteTasksRelation", fields: [siteId], references: [id])
+    siteId    String   @db.VarChar()
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([siteId])
 }
 
 model Material {

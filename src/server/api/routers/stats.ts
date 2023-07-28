@@ -1,6 +1,4 @@
-import { ProjectStatus, ProjectType } from "@prisma/client";
-import { ZodError, z } from "zod";
-import { adminProcedure, createTRPCRouter, protectedProcedure, publicProcedure } from "~/server/api/trpc";
+import { adminProcedure, createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
 export const statsRoueter = createTRPCRouter({
     getBasicStats: adminProcedure
@@ -95,5 +93,24 @@ export const statsRoueter = createTRPCRouter({
 
         }),
 
+    getLandingPageStats: publicProcedure
+        .query(async ({ ctx, input }) => {
+            const projects = await ctx.prisma.project.count({
+                where: {
+                    status: 'ACCEPTED'
+                }
+            });
+
+            const users = await ctx.prisma.user.count({
+                where: {
+                    role: 'USER'
+                }
+            })
+
+            return {
+                projects,
+                users
+            }
+        })
 
 })

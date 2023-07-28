@@ -16,7 +16,7 @@ export default function Page() {
     console.log(project);
 
     return (
-        <main className='min-h-screen'>
+        <main className='min-h-screen container'>
             <header className="flex items-center mt-4 gap-4">
                 <button className="btn btn-neutral" onClick={() => router.back()}>
                     <RiArrowGoBackFill />
