@@ -13,6 +13,7 @@ import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
 import { UserRole } from "~/common/types";
 import { AdapterUser } from "next-auth/adapters";
+import { User } from "@prisma/client";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -37,24 +38,20 @@ declare module "next-auth" {
  */
 export const authOptions: NextAuthOptions = {
   callbacks: {
-    //  signIn({ user }) {
-    //   const customUser = user as CustomUser;
-    //   console.log("User signed in: ", customUser);
-    //   if (customUser.role === UserRole.ADMIN) {
-    //     return '/admin';
-    //   } else {
-    //     return '/home';
-    //   }
-    // },
+    signIn({ user }) {
+      const customUser = user as User;
+      if (customUser.status === 'BANNED') return false
+      return true;
+    },
     session: ({ session, user }) => {
       const customUser = user as CustomUser;
       return {
-      ...session,
-      user: {
-        ...session.user,
-        id: user.id,
-        role: customUser.role 
-      },
+        ...session,
+        user: {
+          ...session.user,
+          id: user.id,
+          role: customUser.role
+        },
       }
     },
   },

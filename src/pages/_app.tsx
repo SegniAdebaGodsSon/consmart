@@ -20,8 +20,11 @@ const MyApp: AppType<{ session: Session | null }> = ({
       <AuthGuard>
         <ThemeProvider>
           <NavbarComponent />
-          <Component {...pageProps} />
-          <FooterComponent /></ThemeProvider>
+          <AuthGuard>
+            <Component {...pageProps} />
+          </AuthGuard>
+          <FooterComponent />
+        </ThemeProvider>
       </AuthGuard>
     </SessionProvider>
   );

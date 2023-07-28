@@ -83,7 +83,7 @@ export default function Page() {
     }
 
     return (
-        <main>
+        <main className="container my-16">
 
             {
                 updateUserRoleIsSuccess &&

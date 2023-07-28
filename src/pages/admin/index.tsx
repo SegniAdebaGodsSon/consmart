@@ -10,8 +10,8 @@ export default function AdminPage() {
     const { data: userStatsData, isLoading: userStatsIsLoading, error: userStatsError } = api.stats.getUserStats.useQuery();
 
     return (
-        <main className='min-h-screen'>
-            <p className="text-3xl">Admin Dashboard</p>
+        <main className='min-h-screen container'>
+            <p className="text-7xl font-bold my-24 text-center">Admin Dashboard</p>
 
             <section className="flex justify-center">
                 <div>

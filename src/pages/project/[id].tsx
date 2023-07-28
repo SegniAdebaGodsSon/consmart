@@ -13,8 +13,6 @@ export default function Page() {
         id: projectId || ""
     });
 
-    console.log(project);
-
     return (
         <main className='min-h-screen container'>
             <header className="flex items-center mt-4 gap-4">

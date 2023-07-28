@@ -33,7 +33,7 @@ export default function Page() {
     }
 
     return (
-        <>
+        <main className="container py-16">
             <section>
                 <button className="btn btn-neutral" onClick={() => router.back()}>
                     <RiArrowGoBackFill />
@@ -79,6 +79,6 @@ export default function Page() {
                     </div>
                 }
             </section>
-        </>
+        </main>
     );
 }

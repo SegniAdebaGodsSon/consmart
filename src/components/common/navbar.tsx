@@ -20,13 +20,13 @@ export default function NavbarComponent() {
         avatarText = session.user.name.charAt(0);
     }
 
-    function logout() {
-        signOut();
-        router.push('/');
+    async function logout() {
+        const data = await signOut({ redirect: false, callbackUrl: "/" });
+        router.push(data.url)
     }
     return (
-        <nav className="shadow-xl container ">
-            <div className="navbar bg-base-100">
+        <nav className="shadow-xl">
+            <div className="navbar bg-base-100 container">
                 <div className="flex-1 text-primary">
                     {
                         session && session.user.role === UserRole.USER &&
