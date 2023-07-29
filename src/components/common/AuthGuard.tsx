@@ -1,5 +1,6 @@
 import { UserRole } from "@prisma/client";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 import { useRouter } from "next/router";
 
 
@@ -10,10 +11,11 @@ export default function AuthGuard(props: { children: any }) {
     console.log("current path", currentPath);
 
     // not authenticated
-    if (!session && currentPath !== "/") {
-        if (typeof window !== 'undefined') {
-            router.push(`api/auth/signin`);
-        }
+    if (!session && currentPath !== "/" && !currentPath.includes('auth')) {
+        return <main className="flex flex-col min-h-screen items-center justify-center gap-24">
+            <p className="text-6xl">Unauthenticated</p>
+            <Link className="btn btn-info btn-lg" href={'/api/auth/signin'}>Login</Link>
+        </main>
     }
 
     if (session && currentPath === '/') {
@@ -26,8 +28,6 @@ export default function AuthGuard(props: { children: any }) {
             }
         }
     }
-
-
 
     // not authorized - protecting admin
     if (session && session.user.role === UserRole.USER && currentPath.startsWith('/admin')) {

@@ -6,14 +6,13 @@ export const siteRouter = createTRPCRouter({
         .input(z.object({
             name: z.string().min(5, { message: "Site name must be 5 or more characters long" }).max(255, { message: "Site name must be 255 or fewer characters long" }).trim(),
             location: z.string().min(1).max(255).trim(),
-            // schedule: z.ZodJ,
             projectId: z.string().cuid(),
+            managerId: z.string().cuid()
 
         })).mutation(async ({ ctx, input }) => {
             const currUserId = ctx.session.user.id;
-            const { name, location, projectId } = input;
+            const { name, location, projectId, managerId } = input;
 
-            // project must exist
             const project = await ctx.prisma.project.findFirst({
                 where: {
                     id: projectId,
@@ -24,7 +23,6 @@ export const siteRouter = createTRPCRouter({
                 throw new Error('Project not found');
             }
 
-            // user must be a contractor of the specified project to add a site
             if (currUserId !== project.contractorId) {
                 throw new Error('Forbidden! User must be the contractor of the specified project to add a new site')
             }
@@ -33,25 +31,28 @@ export const siteRouter = createTRPCRouter({
                 data: {
                     name,
                     location,
-                    schedule: {},
-                    managerId: currUserId,
+                    managerId,
                     projectId
                 }
-            })
+            });
 
         }),
 
     getOne: protectedProcedure
         .input(z.object({
-            siteId: z.string().cuid(),
-
-        })).mutation(async ({ ctx, input }) => {
+            id: z.string().cuid(),
+        })).query(async ({ ctx, input }) => {
             const currUserId = ctx.session.user.id;
-            const { siteId } = input;
+            const { id } = input;
 
             return ctx.prisma.site.findFirst({
                 where: {
-                    id: siteId
+                    id
+                },
+                include: {
+                    tasks: true,
+                    manager: true,
+                    project: true
                 }
             })
 
@@ -61,7 +62,7 @@ export const siteRouter = createTRPCRouter({
         .input(z.object({
             projectId: z.string().cuid(),
 
-        })).mutation(async ({ ctx, input }) => {
+        })).query(async ({ ctx, input }) => {
             const currUserId = ctx.session.user.id;
             const { projectId } = input;
 
@@ -77,11 +78,29 @@ export const siteRouter = createTRPCRouter({
             }
 
 
+            // if the user is site manager
+            if (currUserId !== project.ownerId &&
+                currUserId !== project.consultantId &&
+                currUserId !== project.contractorId) {
+                return ctx.prisma.site.findMany({
+                    where: {
+                        projectId,
+                        managerId: currUserId
+                    },
+                    include: {
+                        tasks: true
+                    }
+                })
+            }
+
+            // if the user is the owner/consultant/contractor
             return ctx.prisma.site.findMany({
                 where: {
                     projectId
+                },
+                include: {
+                    tasks: true
                 }
             })
-
         })
 })

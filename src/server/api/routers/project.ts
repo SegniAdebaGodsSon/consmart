@@ -81,7 +81,7 @@ export const projectRoueter = createTRPCRouter({
             limit: z.number().min(1),
             search: z.string(),
             orderBy: z.enum(['latest', 'urgent']),
-            role: z.enum(['consultant', 'contractor', 'site manager', 'all']),
+            role: z.enum(['consultant', 'contractor', 'site manager', 'owner', 'all']),
             status: z.enum(['PENDING', 'ACCEPTED', 'REJECTED', 'ALL'])
         }))
         .query(async ({ ctx, input }) => {
@@ -89,6 +89,17 @@ export const projectRoueter = createTRPCRouter({
             const { page, limit, search, orderBy, role, status } = input;
 
             let where = {};
+
+            if (role === 'owner') {
+                where = {
+                    status: status === 'ALL' ? undefined : status,
+                    ownerId: currUserId,
+                    OR: [
+                        { name: { contains: search } },
+                        { description: { contains: search } }
+                    ]
+                }
+            }
 
             if (role === 'consultant') {
                 where = {
@@ -103,7 +114,7 @@ export const projectRoueter = createTRPCRouter({
 
             if (role === 'contractor') {
                 where = {
-                    status: status === 'ALL' ? undefined : status,
+                    status: 'ACCEPTED',
                     contractorId: currUserId,
                     OR: [
                         { name: { contains: search } },
@@ -114,7 +125,7 @@ export const projectRoueter = createTRPCRouter({
 
             if (role === 'site manager') {
                 where = {
-                    status: status === 'ALL' ? undefined : status,
+                    status: 'ACCEPTED',
                     sites: {
                         some: {
                             managerId: currUserId
@@ -129,12 +140,12 @@ export const projectRoueter = createTRPCRouter({
 
             if (role === 'all') {
                 where = {
-                    status: status === 'ALL' ? undefined : status,
                     OR: [
                         { name: { contains: search } },
                         { description: { contains: search } },
-                        { consultantId: currUserId },
-                        { contractorId: currUserId },
+                        { ownerId: currUserId, status: status as ProjectStatus },
+                        { consultantId: currUserId, status: status as ProjectStatus },
+                        { contractorId: currUserId, status: status as ProjectStatus },
                         {
                             sites: {
                                 some: {
@@ -167,7 +178,7 @@ export const projectRoueter = createTRPCRouter({
                     startDate: orderBy === "latest" ? 'desc' : undefined,
                     endDate: orderBy === "urgent" ? 'asc' : undefined
                 },
-                where
+                where,
             });
 
 

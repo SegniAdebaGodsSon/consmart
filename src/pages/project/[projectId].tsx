@@ -1,16 +1,22 @@
-import { useParams } from 'next/navigation';
 import { useRouter } from 'next/router';
 import { api } from '~/utils/api';
 import { RiArrowGoBackFill } from 'react-icons/ri';
 import { BsFillCalendarRangeFill } from 'react-icons/bs';
 import moment from 'moment';
+import { useSession } from 'next-auth/react';
+import Link from 'next/link';
 
 export default function Page() {
+    const { data: session } = useSession();
     const router = useRouter();
-    const projectId = router.query.id as string;
+    const projectId = router.query.projectId as string;
 
     const { data: project, isLoading, error } = api.project.getOne.useQuery({
         id: projectId || ""
+    });
+
+    const { data: sitesData, isLoading: sitesIsLoading, error: sitesError } = api.site.getAll.useQuery({
+        projectId
     });
 
     return (
@@ -156,6 +162,49 @@ export default function Page() {
                     </div>
                 </section>
             }
+
+
+            <section className='my-10'>
+                {
+                    session && project && session.user.id === project.contractorId &&
+                    <div className='flex justify-center'>
+                        <Link className='btn btn-outline btn-success btn-lg' href={`/project/${project.id}/site/create`}>Add a new site</Link>
+                    </div>
+                }
+            </section>
+
+
+            <section className='my-10'>
+                <h1 className='text-5xl text-center'>Sites</h1>
+                {
+                    sitesIsLoading &&
+                    <div className='h-screen flex justify-center'>
+                        <span className="loading loading-bars loading-lg"></span>
+                    </div >
+
+                }
+                {
+                    sitesError &&
+                    <div className='h-screen flex justify-center items-center'>
+                        <p className='text-error'>Error: {sitesError.message}</p>
+                    </div>
+                }
+                <div className='flex flex-wrap gap-5 my-8'>
+                    {
+                        project && sitesData &&
+                        sitesData.map(site => (
+                            <div key={site.id} className='p-5 flex flex-col gap-3 shadow-2xl hover:shadow-md transition-all duration-150 ease-linear border-primary/40 border-[1px] rounded-md'>
+                                <p><span className='font-bold'>Name:</span> {site.name}</p>
+                                <p><span className='font-bold'>Location:</span> {site.location}</p>
+                                <p><span className='font-bold'>Tasks:</span> {site.tasks.length}</p>
+                                <Link className='btn btn-outline btn-info' href={`/project/${project.id}/site/${site.id}`}>Details</Link>
+                            </div>
+                        ))
+                    }
+                </div>
+            </section>
+
+
         </main>
     );
 }

@@ -152,8 +152,6 @@ export default function Create() {
                             }
                         </button>
                     </div>
-
-
                 </form>
             </section>
         </main >
