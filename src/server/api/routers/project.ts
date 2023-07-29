@@ -139,13 +139,14 @@ export const projectRoueter = createTRPCRouter({
             }
 
             if (role === 'all') {
+                let statusUpdated = status === "ALL" ? undefined : status as ProjectStatus;
                 where = {
                     OR: [
                         { name: { contains: search } },
                         { description: { contains: search } },
-                        { ownerId: currUserId, status: status as ProjectStatus },
-                        { consultantId: currUserId, status: status as ProjectStatus },
-                        { contractorId: currUserId, status: status as ProjectStatus },
+                        { ownerId: currUserId, status: statusUpdated },
+                        { consultantId: currUserId, status: statusUpdated },
+                        { contractorId: currUserId, status: statusUpdated },
                         {
                             sites: {
                                 some: {
