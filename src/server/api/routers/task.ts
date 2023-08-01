@@ -9,7 +9,8 @@ export const taskRoueter = createTRPCRouter({
             detail: z.string().min(5).max(255),
             siteId: z.string().cuid()
 
-        })).mutation(async ({ ctx, input }) => {
+        }))
+        .mutation(async ({ ctx, input }) => {
             const currUserId = ctx.session.user.id;
             const { name, progress, detail, siteId } = input;
 
@@ -37,5 +38,22 @@ export const taskRoueter = createTRPCRouter({
             });
 
         }),
+
+    updateProgress: protectedProcedure
+        .input(z.object({
+            id: z.string().cuid(),
+            progress: z.number().min(0).max(100)
+        }))
+        .mutation(async ({ ctx, input }) => {
+            const { id, progress } = input;
+            return ctx.prisma.task.update({
+                where: {
+                    id
+                },
+                data: {
+                    progress
+                }
+            })
+        })
 
 })
