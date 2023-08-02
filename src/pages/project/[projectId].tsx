@@ -218,6 +218,21 @@ export default function Page() {
                                     <p><span className='font-bold'>Name:</span> {site.name}</p>
                                     <p><span className='font-bold'>Location:</span> {site.location}</p>
                                     <p><span className='font-bold'>Tasks:</span> {site.tasks.length}</p>
+                                    <div>
+                                        {
+                                            site.progress >= 70 &&
+                                            <progress className="progress progress-success w-56" value={site.progress} max="100"></progress>
+                                        }
+                                        {
+                                            site.progress < 70 && site.progress > 40 &&
+                                            <progress className="progress progress-warning w-56" value={site.progress} max="100"></progress>
+                                        }
+                                        {
+                                            site.progress <= 40 &&
+                                            <progress className="progress progress-error w-56" value={site.progress} max="100"></progress>
+                                        }
+                                        <p><span className='font-bold'>Progress:</span> {site.progress}%</p>
+                                    </div>
                                     <p><span className='font-bold'>Created at:</span> {site.createdAt.toDateString()}</p>
                                     <Link className='btn btn-outline btn-info' href={`/project/${project.id}/site/${site.id}`}>Details</Link>
                                 </div>

@@ -61,8 +61,8 @@ export const siteRouter = createTRPCRouter({
     getAll: protectedProcedure
         .input(z.object({
             projectId: z.string().cuid(),
-
-        })).query(async ({ ctx, input }) => {
+        }))
+        .query(async ({ ctx, input }) => {
             const currUserId = ctx.session.user.id;
             const { projectId } = input;
 
@@ -77,30 +77,57 @@ export const siteRouter = createTRPCRouter({
                 throw new Error('Project not found');
             }
 
-
             // if the user is site manager
-            if (currUserId !== project.ownerId &&
+            if (
+                currUserId !== project.ownerId &&
                 currUserId !== project.consultantId &&
-                currUserId !== project.contractorId) {
-                return ctx.prisma.site.findMany({
+                currUserId !== project.contractorId
+            ) {
+                const sites = await ctx.prisma.site.findMany({
                     where: {
                         projectId,
-                        managerId: currUserId
+                        managerId: currUserId,
                     },
                     include: {
-                        tasks: true
-                    }
-                })
+                        tasks: true,
+                    },
+                });
+
+                const sitesWithProgress = sites.map((site) => {
+                    const progressArr = site.tasks.map((task) => task.progress);
+                    const averageProgress =
+                        progressArr.reduce((acc, curr) => acc + curr, 0) / progressArr.length;
+
+                    return {
+                        ...site,
+                        progress: averageProgress,
+                    };
+                });
+
+                return sitesWithProgress;
             }
 
             // if the user is the owner/consultant/contractor
-            return ctx.prisma.site.findMany({
+            const sites = await ctx.prisma.site.findMany({
                 where: {
-                    projectId
+                    projectId,
                 },
                 include: {
-                    tasks: true
-                }
-            })
+                    tasks: true,
+                },
+            });
+
+            const sitesWithProgress = sites.map((site) => {
+                const progressArr = site.tasks.map((task) => task.progress);
+                const averageProgress =
+                    progressArr.reduce((acc, curr) => acc + curr, 0) / progressArr.length;
+
+                return {
+                    ...site,
+                    progress: averageProgress,
+                };
+            });
+
+            return sitesWithProgress;
         })
 })
