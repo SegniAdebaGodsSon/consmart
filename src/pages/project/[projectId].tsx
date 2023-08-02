@@ -197,6 +197,7 @@ export default function Page() {
                                 <p><span className='font-bold'>Name:</span> {site.name}</p>
                                 <p><span className='font-bold'>Location:</span> {site.location}</p>
                                 <p><span className='font-bold'>Tasks:</span> {site.tasks.length}</p>
+                                <p><span className='font-bold'>Created at:</span> {site.createdAt.toDateString()}</p>
                                 <Link className='btn btn-outline btn-info' href={`/project/${project.id}/site/${site.id}`}>Details</Link>
                             </div>
                         ))

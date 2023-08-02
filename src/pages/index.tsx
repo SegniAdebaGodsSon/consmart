@@ -18,7 +18,7 @@ export default function Home() {
         <section className="flex items-center gap-10 justify-center flex-wrap py-40">
           <div className="flex flex-col gap-6 items-start mx-0 max-w-2xl ">
             <h1 className="text-6xl text-primary font-bold leading-tight">We Take Your Dream Home & Make It Real!</h1>
-            <p className="text-base-content">Lorem ipsum dolor sit amet consectetur adipisicing elit. Beatae numquam eum ad neque enim ut excepturi incidunt fugiat, inventore qui esse eveniet. Minima eaque sint assumenda! Vero ipsam laborum consequatur officiis tempore, cumque corporis deleniti, illum explicabo repellat, vel perspiciatis.</p>
+            <p className="text-base-content">With a user-friendly interface and powerful features, it empowers construction professionals to drive efficiency and success in their projects. Experience the future of construction management with our innovative system.</p>
             <div className="flex gap-4">
               <Link href={'api/auth/signin'} className="btn btn-active btn-primary">Get Started</Link>
               <Link href={'#about'} className="btn btn-outline btn-primary">Explore More</Link>
@@ -65,14 +65,14 @@ export default function Home() {
         <section className="bg-base-200 py-36" id="about">
           <div className="container">
             <h1 className="text-center text-6xl text-primary mb-10">About Us</h1>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Maiores sit obcaecati dolores modi! Autem obcaecati quis esse asperiores temporibus commodi cum inventore possimus facere neque consequuntur distinctio soluta velit odit laborum laboriosam dicta ab numquam perferendis, nisi recusandae ad voluptate vitae totam? Enim quos, numquam cumque assumenda ipsam velit unde.</p>
+            <p>Welcome to our platform! We are a dynamic team of students from Adama College, driven by a shared passion for technology and a desire to make a difference in the construction industry. Our mission is to provide an advanced construction management system that simplifies project workflows and boosts productivity. Through extensive research and development, we have created a comprehensive solution that covers everything from project planning and scheduling to resource allocation and cost tracking. Our user-friendly platform is designed to empower construction professionals, enhance collaboration, and drive efficiency. Join us as we revolutionize construction management and pave the way for a brighter future in the industry.</p>
           </div>
         </section>
 
         <section className="py-36">
           <div className="container">
             <h1 className="text-center text-6xl text-primary mb-10">Our Services</h1>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Maiores sit obcaecati dolores modi! Autem obcaecati quis esse asperiores temporibus commodi cum inventore possimus facere neque consequuntur distinctio soluta velit odit laborum laboriosam dicta ab numquam perferendis, nisi recusandae ad voluptate vitae totam? Enim quos, numquam cumque assumenda ipsam velit unde.</p>
+            <p>Welcome to our platform! We are a dynamic team of students from Adama College, driven by a shared passion for technology and a desire to make a difference in the construction industry. Our mission is to provide an advanced construction management system that simplifies project workflows and boosts productivity. Through extensive research and development, we have created a comprehensive solution that covers everything from project planning and scheduling to resource allocation and cost tracking. Our user-friendly platform is designed to empower construction professionals, enhance collaboration, and drive efficiency. Join us as we revolutionize construction management and pave the way for a brighter future in the industry.</p>
           </div>
         </section>
 

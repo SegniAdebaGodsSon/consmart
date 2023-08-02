@@ -127,9 +127,12 @@ export default function Page() {
                         {/* tasks here */}
                         <div className="flex flex-wrap py-4 gap-2 justify-evenly">
                             {
-                                [...siteData.tasks, taskProgressData].map((task, index) => {
+                                // [...siteData.tasks, taskProgressData].map((task, index) => {
+
+                                siteData.tasks.map((task, index) => {
                                     if (!task) return;
                                     const progress = taskProgressData && taskProgressData.id === task.id ? taskProgressData.progress : task.progress;
+                                    task = taskProgressData && taskProgressData.id === task.id ? taskProgressData : task;
                                     return (
                                         <div className="shadow-md p-5 flex gap-2 flex-col hover:shadow-xl transition-all duration-200 ease-linear" key={task.id}>
                                             <p><span className="font-bold">Name:</span> {task.name}</p>
@@ -153,22 +156,25 @@ export default function Page() {
                                             </div>
                                             <p><span className="font-bold">Created at:</span> {task.createdAt.toDateString()}</p>
 
-                                            <button className="btn btn-outline btn-warning btn-sm" disabled={taskProgressIsLoading} onClick={() => {
-                                                window.my_modal_1.showModal();
-                                                setTaskToBeUpdated(task.id);
-                                            }}>
-                                                {
-                                                    taskProgressIsLoading && task.id === taskToBeUpdated ?
-                                                        <>
-                                                            Editing Progress
-                                                            <span className="loading loading-ring loading-sm"></span>
-                                                        </>
-                                                        :
-                                                        <>
-                                                            Edit progress
-                                                        </>
-                                                }
-                                            </button>
+                                            {
+                                                session && session.user.id === siteData.managerId &&
+                                                <button className="btn btn-outline btn-warning btn-sm" disabled={taskProgressIsLoading} onClick={() => {
+                                                    window.my_modal_1.showModal();
+                                                    setTaskToBeUpdated(task.id);
+                                                }}>
+                                                    {
+                                                        taskProgressIsLoading && task.id === taskToBeUpdated ?
+                                                            <>
+                                                                Editing Progress
+                                                                <span className="loading loading-ring loading-sm"></span>
+                                                            </>
+                                                            :
+                                                            <>
+                                                                Edit progress
+                                                            </>
+                                                    }
+                                                </button>
+                                            }
 
                                         </div>
                                     )
@@ -177,17 +183,20 @@ export default function Page() {
                         </div>
 
                         {/* add task */}
-                        <div className="flex justify-end">
-                            {
-                                taskMutateIsLoading ?
-                                    <button className="btn btn-success" disabled onClick={() => window.my_modal_3.showModal()}>
-                                        adding task
-                                        <span className="loading loading-ring loading-md"></span>
-                                    </button>
-                                    :
-                                    <button className="btn btn-success" onClick={() => window.my_modal_3.showModal()}>add task</button>
-                            }
-                        </div>
+                        {
+                            session && session.user.id === siteData.managerId &&
+                            <div className="flex justify-end">
+                                {
+                                    taskMutateIsLoading ?
+                                        <button className="btn btn-success" disabled onClick={() => window.my_modal_3.showModal()}>
+                                            adding task
+                                            <span className="loading loading-ring loading-md"></span>
+                                        </button>
+                                        :
+                                        <button className="btn btn-success" onClick={() => window.my_modal_3.showModal()}>add task</button>
+                                }
+                            </div>
+                        }
 
                     </section>
                 }
