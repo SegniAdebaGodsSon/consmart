@@ -54,7 +54,7 @@ export default function Page() {
     return (
         <>
             <header>
-                <title>Site {siteData ? `- ${siteData.name}` : ``}</title>
+                <title>Site {siteData && `- ${siteData.name}`}</title>
             </header>
             <main className="min-h-screen container">
                 <header className="flex items-center mt-4 gap-4">

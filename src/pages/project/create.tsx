@@ -44,116 +44,121 @@ export default function Create() {
     }, 1000)
 
     return (
-        <main className="container">
-
-            {
-                isSuccess && <Alert duration={3000} message="Project successfully created! (pending approval)" type="success" />
-            }
-            {
-                error && <Alert duration={3000} message="Error creating a project!" type="error" />
-            }
-
-            <header className="flex items-center mt-4 gap-4">
-                <button className="btn btn-neutral" onClick={() => router.back()}>
-                    <RiArrowGoBackFill />
-                </button>
+        <>
+            <header>
+                <title>Create Project</title>
             </header>
+            <main className="container">
 
-            <section className="flex w-full items-center justify-center flex-col my-4">
-                <h1 className="text-2xl font-bold">Create new project</h1>
-                <form className="flex flex-col gap-5 w-96 shadow-2xl p-8">
-                    <div className="form-control w-full max-w-xs">
-                        <label className="label">
-                            <span className="label-text">Name</span>
-                        </label>
-                        <input ref={nameRef} type="text" placeholder="" className="input input-bordered w-full max-w-xs" />
-                        <label className="label">
-                            <span className="label-text text-error text-xs">{error?.data?.zodError?.fieldErrors.name}</span>
-                        </label>
-                    </div>
+                {
+                    isSuccess && <Alert duration={3000} message="Project successfully created! (pending approval)" type="success" />
+                }
+                {
+                    error && <Alert duration={3000} message="Error creating a project!" type="error" />
+                }
 
-                    <div className="form-control w-full max-w-xs">
-                        <label className="label">
-                            <span className="label-text">Description</span>
-                        </label>
-                        <textarea ref={descriptionRef} className="textarea textarea-bordered" placeholder=""></textarea>
-                        <label className="label">
-                            <span className="label-text text-error text-xs">{error?.data?.zodError?.fieldErrors.description}</span>
-                        </label>
-                    </div>
+                <header className="flex items-center mt-4 gap-4">
+                    <button className="btn btn-neutral" onClick={() => router.back()}>
+                        <RiArrowGoBackFill />
+                    </button>
+                </header>
 
-                    <div className="form-control w-full max-w-xs">
-                        <label className="label">
-                            <span className="label-text">Type</span>
-                        </label>
-                        <select ref={typeRef} className="select select-bordered w-full max-w-xs">
-                            <option value={ProjectType.COMMERTIAL_CONSTRUCTION}>Commercial construction</option>
-                            <option value={ProjectType.HEAVY_CONSTRUCTION}>Heavy construction</option>
-                            <option value={ProjectType.INDUSTRIAL_CONSTRUCTION}>Industrial construction</option>
-                            <option value={ProjectType.RESIDENTIAL_CONSTRUCTION}>Residential construction</option>
-                        </select>
-                        <label className="label">
-                            <span className="label-text text-error text-xs">{error?.data?.zodError?.fieldErrors.type}</span>
-                        </label>
-                    </div>
+                <section className="flex w-full items-center justify-center flex-col my-4">
+                    <h1 className="text-2xl font-bold">Create new project</h1>
+                    <form className="flex flex-col gap-5 w-96 shadow-2xl p-8">
+                        <div className="form-control w-full max-w-xs">
+                            <label className="label">
+                                <span className="label-text">Name</span>
+                            </label>
+                            <input ref={nameRef} type="text" placeholder="" className="input input-bordered w-full max-w-xs" />
+                            <label className="label">
+                                <span className="label-text text-error text-xs">{error?.data?.zodError?.fieldErrors.name}</span>
+                            </label>
+                        </div>
 
-                    <div className="form-control w-full max-w-xs">
-                        <label className="label">
-                            <span className="label-text">Select owner</span>
-                        </label>
-                        <SearchUsers placeholder="search by email or username" userIdRef={ownerIdRef} />
+                        <div className="form-control w-full max-w-xs">
+                            <label className="label">
+                                <span className="label-text">Description</span>
+                            </label>
+                            <textarea ref={descriptionRef} className="textarea textarea-bordered" placeholder=""></textarea>
+                            <label className="label">
+                                <span className="label-text text-error text-xs">{error?.data?.zodError?.fieldErrors.description}</span>
+                            </label>
+                        </div>
 
-                        <label className="label">
-                            <span className="label-text text-error text-xs">{error?.data?.zodError?.fieldErrors.contractorId}</span>
-                        </label>
-                    </div>
+                        <div className="form-control w-full max-w-xs">
+                            <label className="label">
+                                <span className="label-text">Type</span>
+                            </label>
+                            <select ref={typeRef} className="select select-bordered w-full max-w-xs">
+                                <option value={ProjectType.COMMERTIAL_CONSTRUCTION}>Commercial construction</option>
+                                <option value={ProjectType.HEAVY_CONSTRUCTION}>Heavy construction</option>
+                                <option value={ProjectType.INDUSTRIAL_CONSTRUCTION}>Industrial construction</option>
+                                <option value={ProjectType.RESIDENTIAL_CONSTRUCTION}>Residential construction</option>
+                            </select>
+                            <label className="label">
+                                <span className="label-text text-error text-xs">{error?.data?.zodError?.fieldErrors.type}</span>
+                            </label>
+                        </div>
 
-                    <div className="form-control w-full max-w-xs">
-                        <label className="label">
-                            <span className="label-text">Select contractor</span>
-                        </label>
-                        <SearchUsers placeholder="search by email or username" userIdRef={contractorIdRef} />
+                        <div className="form-control w-full max-w-xs">
+                            <label className="label">
+                                <span className="label-text">Select owner</span>
+                            </label>
+                            <SearchUsers placeholder="search by email or username" userIdRef={ownerIdRef} />
 
-                        <label className="label">
-                            <span className="label-text text-error text-xs">{error?.data?.zodError?.fieldErrors.contractorId}</span>
-                        </label>
-                    </div>
-                    <div className="form-control w-full max-w-xs">
-                        <label className="label">
-                            <span className="label-text">Select start and end date</span>
-                        </label>
-                        <Datepicker
-                            placeholder="Pick start date and end date"
-                            value={dateRange || null}
-                            onChange={handleDateRangeChange}
-                            showFooter
-                        />
-                        <label className="label">
-                            <span className="label-text text-error text-xs">{error?.data?.zodError?.fieldErrors.startDate ? "Start date: " + error?.data?.zodError?.fieldErrors.startDate : ""}</span>
-                        </label>
+                            <label className="label">
+                                <span className="label-text text-error text-xs">{error?.data?.zodError?.fieldErrors.contractorId}</span>
+                            </label>
+                        </div>
 
-                        <label className="label">
-                            <span className="label-text text-error text-xs">{error?.data?.zodError?.fieldErrors.endDate ? "End date: " + error?.data?.zodError?.fieldErrors.endDate : ""}</span>
-                        </label>
+                        <div className="form-control w-full max-w-xs">
+                            <label className="label">
+                                <span className="label-text">Select contractor</span>
+                            </label>
+                            <SearchUsers placeholder="search by email or username" userIdRef={contractorIdRef} />
 
-                    </div>
+                            <label className="label">
+                                <span className="label-text text-error text-xs">{error?.data?.zodError?.fieldErrors.contractorId}</span>
+                            </label>
+                        </div>
+                        <div className="form-control w-full max-w-xs">
+                            <label className="label">
+                                <span className="label-text">Select start and end date</span>
+                            </label>
+                            <Datepicker
+                                placeholder="Pick start date and end date"
+                                value={dateRange || null}
+                                onChange={handleDateRangeChange}
+                                showFooter
+                            />
+                            <label className="label">
+                                <span className="label-text text-error text-xs">{error?.data?.zodError?.fieldErrors.startDate ? "Start date: " + error?.data?.zodError?.fieldErrors.startDate : ""}</span>
+                            </label>
 
-                    <div className="form-control w-max">
-                        <button className="btn btn-outline btn-primary" disabled={isLoading ? true : false} onClick={handleSubmit}>
-                            {isLoading ?
-                                <>
-                                    Creating{" "}
-                                    <span className="loading loading-ring loading-md"></span>
-                                </>
-                                :
-                                <>
-                                    Create{" "}
-                                </>
-                            }
-                        </button>
-                    </div>
-                </form>
-            </section>
-        </main >
+                            <label className="label">
+                                <span className="label-text text-error text-xs">{error?.data?.zodError?.fieldErrors.endDate ? "End date: " + error?.data?.zodError?.fieldErrors.endDate : ""}</span>
+                            </label>
+
+                        </div>
+
+                        <div className="form-control w-max">
+                            <button className="btn btn-outline btn-primary" disabled={isLoading ? true : false} onClick={handleSubmit}>
+                                {isLoading ?
+                                    <>
+                                        Creating{" "}
+                                        <span className="loading loading-ring loading-md"></span>
+                                    </>
+                                    :
+                                    <>
+                                        Create{" "}
+                                    </>
+                                }
+                            </button>
+                        </div>
+                    </form>
+                </section>
+            </main >
+        </>
     );
 }

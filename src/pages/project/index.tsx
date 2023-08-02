@@ -3,7 +3,6 @@ import ProjectSearchComponent, { SearchObject } from "~/components/user/project/
 import { BsHouseAddFill } from 'react-icons/bs';
 import { RiArrowGoBackFill } from 'react-icons/ri';
 import { api } from "~/utils/api";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import ProjectCard from "~/components/user/project/projectCard";
@@ -45,44 +44,56 @@ export default function ProjectPage() {
 
 
     return (
-        <main className="container">
-            <div className="my-3 flex justify-between">
-                <button className="btn btn-neutral" onClick={() => router.back()}>
-                    <RiArrowGoBackFill />
-                </button>
+        <>
+            <header>
+                <title>Your Projects</title>
+            </header>
+            <main className="container">
+                <div className="my-3 flex justify-between">
+                    <button className="btn btn-neutral" onClick={() => router.back()}>
+                        <RiArrowGoBackFill />
+                    </button>
 
-                <Link className="btn btn-success" href={'/project/create'}><BsHouseAddFill /> New Project</Link>
-            </div>
+                    <Link className="btn btn-success" href={'/project/create'}><BsHouseAddFill /> New Project</Link>
+                </div>
 
-            <section className="flex justify-center mt-4">
-                <ProjectSearchComponent cb={handleSubmit} />
-            </section>
-            <section className="mt-4">
-                {
-                    isLoading &&
-                    <div className="h-screen flex justify-center items-center">
-                        <span className="loading loading-bars loading-lg"></span>
-                    </div>
-                }
+                <section className="flex justify-center mt-4">
+                    <ProjectSearchComponent cb={handleSubmit} />
+                </section>
+                <section className="mt-4">
+                    {
+                        isLoading &&
+                        <div className="h-screen flex justify-center items-center">
+                            <span className="loading loading-bars loading-lg"></span>
+                        </div>
+                    }
 
-                {
-                    data &&
-                    <div>
+                    {
+                        data &&
                         <div>
-                            <p>Total results: {data.total}</p>
+                            <div>
+                                <p>Total results: {data.total}</p>
+                            </div>
+                            <div className="">
+                                {data.projects.map((project, index) => (
+                                    <>
+                                        <ProjectCard key={project.id} project={project} />
+                                        <div className="divider"></div>
+                                    </>
+                                ))}
+                            </div>
                         </div>
-                        <div className="">
-                            {data.projects.map((project, index) => (
-                                <>
-                                    <ProjectCard key={project.id} project={project} />
-                                    <div className="divider"></div>
-                                </>
-                            ))}
-                        </div>
-                    </div>
-                }
+                    }
 
-            </section>
-        </main>
+                    {
+                        error &&
+                        <div className="min-h-screen flex justify-center items-center text-error text-2xl">
+                            <p>Error loading your projects!</p>
+                        </div>
+                    }
+
+                </section>
+            </main>
+        </>
     );
 }
