@@ -88,76 +88,6 @@ export const projectRoueter = createTRPCRouter({
             const currUserId = ctx.session.user.id;
             const { page, limit, search, orderBy, role, status } = input;
 
-            let where = {};
-
-            if (role === 'owner') {
-                where = {
-                    status: status === 'ALL' ? undefined : status,
-                    ownerId: currUserId,
-                    OR: [
-                        { name: { contains: search } },
-                        { description: { contains: search } }
-                    ]
-                }
-            }
-
-            if (role === 'consultant') {
-                where = {
-                    status: status === 'ALL' ? undefined : status,
-                    consultantId: currUserId,
-                    OR: [
-                        { name: { contains: search } },
-                        { description: { contains: search } }
-                    ]
-                }
-            }
-
-            if (role === 'contractor') {
-                where = {
-                    status: 'ACCEPTED',
-                    contractorId: currUserId,
-                    OR: [
-                        { name: { contains: search } },
-                        { description: { contains: search } }
-                    ]
-                }
-            }
-
-            if (role === 'site manager') {
-                where = {
-                    status: 'ACCEPTED',
-                    sites: {
-                        some: {
-                            managerId: currUserId
-                        }
-                    },
-                    OR: [
-                        { name: { contains: search } },
-                        { description: { contains: search } }
-                    ]
-                }
-            }
-
-            if (role === 'all') {
-                let statusUpdated = status === "ALL" ? undefined : status as ProjectStatus;
-                where = {
-                    OR: [
-                        { name: { contains: search } },
-                        { description: { contains: search } },
-                        { ownerId: currUserId, status: statusUpdated },
-                        { consultantId: currUserId, status: statusUpdated },
-                        { contractorId: currUserId, status: statusUpdated },
-                        {
-                            sites: {
-                                some: {
-                                    managerId: currUserId
-                                }
-                            }
-                        }
-                    ]
-                }
-            }
-
             const projects = await ctx.prisma.project.findMany({
                 take: limit,
                 skip: (page - 1) * limit,
@@ -165,7 +95,40 @@ export const projectRoueter = createTRPCRouter({
                     startDate: orderBy === "latest" ? 'desc' : undefined,
                     endDate: orderBy === "urgent" ? 'asc' : undefined
                 },
-                where,
+                where: {
+                    OR: [
+                        { ownerId: currUserId },
+                        { consultantId: currUserId },
+                        { contractorId: currUserId, status: 'ACCEPTED' },
+                        {
+                            sites: {
+                                some: {
+                                    managerId: currUserId,
+                                },
+                            },
+                            status: 'ACCEPTED'
+                        }
+                    ],
+                    status: status === 'ALL' ? undefined : status,
+                    AND: [
+                        {
+                            OR: [
+                                { name: { contains: search, mode: 'insensitive' } },
+                                { description: { contains: search, mode: 'insensitive' } }
+                            ]
+                        },
+                        role === 'owner' ? { ownerId: currUserId } : {},
+                        role === 'consultant' ? { consultantId: currUserId } : {},
+                        role === 'contractor' ? { contractorId: currUserId } : {},
+                        role === 'site manager' ? {
+                            sites: {
+                                some: {
+                                    managerId: currUserId
+                                }
+                            }
+                        } : {},
+                    ]
+                },
                 include: {
                     consultant: true,
                     contractor: true,
@@ -179,14 +142,47 @@ export const projectRoueter = createTRPCRouter({
                     startDate: orderBy === "latest" ? 'desc' : undefined,
                     endDate: orderBy === "urgent" ? 'asc' : undefined
                 },
-                where,
+                where: {
+                    OR: [
+                        { ownerId: currUserId },
+                        { consultantId: currUserId },
+                        { contractorId: currUserId, status: 'ACCEPTED' },
+                        {
+                            sites: {
+                                some: {
+                                    managerId: currUserId,
+                                },
+                            },
+                            status: 'ACCEPTED'
+                        }
+                    ],
+                    status: status === 'ALL' ? undefined : status,
+                    AND: [
+                        {
+                            OR: [
+                                { name: { contains: search, mode: 'insensitive' } },
+                                { description: { contains: search, mode: 'insensitive' } }
+                            ]
+                        },
+                        role === 'owner' ? { ownerId: currUserId } : {},
+                        role === 'consultant' ? { consultantId: currUserId } : {},
+                        role === 'contractor' ? { contractorId: currUserId } : {},
+                        role === 'site manager' ? {
+                            sites: {
+                                some: {
+                                    managerId: currUserId
+                                }
+                            }
+                        } : {},
+                    ]
+                }
             });
-
 
             return {
                 projects,
                 total: count
             };
+
         }),
 
     // getUsersInProject: protectedProcedure

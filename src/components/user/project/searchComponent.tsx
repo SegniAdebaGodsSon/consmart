@@ -71,6 +71,7 @@ export default function ProjectSearchComponent(props: { cb: (searchObject: Searc
                         </label>
                         <select ref={roleRef} className="select select-bordered join-item">
                             <option value={"all"}>All</option>
+                            <option value={"owner"}>Owner</option>
                             <option value={"consultant"}>Consultant</option>
                             <option value={"contractor"}>Contractor</option>
                             <option value={"site manager"}>Site manager</option>
