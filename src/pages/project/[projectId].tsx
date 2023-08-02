@@ -19,6 +19,10 @@ export default function Page() {
         projectId
     });
 
+    const { data: projectProgressData, isLoading: projectProgressIsLoading, error: projectProgressError } = api.project.getCompletionPercentage.useQuery({
+        projectId
+    });
+
     return (
         <main className='min-h-screen container'>
             <header className="flex items-center mt-4 gap-4">
@@ -46,7 +50,7 @@ export default function Page() {
                 <section className='max-w-4xl shadow-xl mx-auto p-6 rounded-3xl hover:shadow-md hover:rounded-none transition-all duration-200'>
                     <p className='text-3xl text-center my-4 font-semibold'>Project Info</p>
                     <div className='flex gap-10 items-center'>
-                        <article>
+                        <article className='flex flex-col gap-2'>
                             <div className="flex justify-between">
                                 <div className="flex items-center gap-4">
                                     {
@@ -156,8 +160,19 @@ export default function Page() {
                         </article>
                         <div className="divider divider-horizontal"></div>
                         <article>
-                            <div className="radial-progress" style={{ "--value": "70", "--size": "12rem", "--thickness": "2rem" }}>70%</div>
-                            <p className='text-center mt-4 text-success'>Overall progress</p>
+                            {
+                                projectProgressIsLoading &&
+                                <span className="loading loading-ring loading-lg"></span>
+                            }
+                            {
+                                projectProgressError &&
+                                <p className='text-error'>Error loading the project progress!</p>
+                            }
+                            {
+                                projectProgressData &&
+                                <div className={`radial-progress ${projectProgressData <= 40 && 'text-error'} ${projectProgressData > 40 && projectProgressData <= 70 && 'text-warning'} ${projectProgressData > 70 && 'text-success'}`} style={{ "--value": projectProgressData.toFixed(2), "--size": "12rem", "--thickness": "2rem" }}>{projectProgressData.toFixed(2)}%</div>
+                            }
+                            <p className='text-center mt-4 text-success font-bold'>Overall progress</p>
                         </article>
                     </div>
                 </section>

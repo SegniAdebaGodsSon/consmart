@@ -295,6 +295,30 @@ export const projectRoueter = createTRPCRouter({
             return updatedProject;
         }),
 
+    getCompletionPercentage: protectedProcedure
+        .input(z.object({
+            projectId: z.string().cuid()
+        }))
+        .query(async ({ ctx, input }) => {
+            const { projectId } = input;
+            const overallProgress = await ctx.prisma.task.aggregate({
+                where: {
+                    site: {
+                        project: {
+                            id: projectId,
+                        },
+                    },
+                },
+                _avg: {
+                    progress: true,
+                },
+            });
+
+            return overallProgress._avg.progress;
+            const percentage = (overallProgress._avg.progress || 0) * 100;
+            return percentage;
+        })
+
 
 
 });
