@@ -309,10 +309,7 @@ export const projectRoueter = createTRPCRouter({
                     progress: true,
                 },
             });
-
-            return overallProgress._avg.progress;
-            const percentage = (overallProgress._avg.progress || 0) * 100;
-            return percentage;
+            return overallProgress._avg.progress || 0;
         })
 
 

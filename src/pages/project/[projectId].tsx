@@ -173,9 +173,11 @@ export default function Page() {
                                     <p className='text-error'>Error loading the project progress!</p>
                                 }
                                 {
-                                    projectProgressData &&
-                                    <div className={`radial-progress ${projectProgressData <= 40 && 'text-error'} ${projectProgressData > 40 && projectProgressData <= 70 && 'text-warning'} ${projectProgressData > 70 && 'text-success'}`} style={{ "--value": projectProgressData.toFixed(2), "--size": "12rem", "--thickness": "2rem" }}>{projectProgressData.toFixed(2)}%</div>
+                                    projectProgressData !== null && projectProgressData !== undefined &&
+                                    <div className={`radial-progress ${projectProgressData <= 40 && 'text-error'} ${projectProgressData > 40 && projectProgressData <= 70 && 'text-warning'} ${projectProgressData > 70 && 'text-success'}`} style={{ "--value": projectProgressData.toFixed(), "--size": "12rem", "--thickness": "2rem" }}>{projectProgressData.toFixed(2)}%</div>
                                 }
+
+
                                 <p className='text-center mt-4 text-success font-bold'>Overall progress</p>
                             </article>
                         </div>
