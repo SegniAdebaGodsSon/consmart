@@ -108,7 +108,7 @@ export default function Create() {
                             <SearchUsers placeholder="search by email or username" userIdRef={ownerIdRef} />
 
                             <label className="label">
-                                <span className="label-text text-error text-xs">{error?.data?.zodError?.fieldErrors.contractorId}</span>
+                                <span className="label-text text-error text-xs">{error?.data?.zodError?.fieldErrors.ownerId}</span>
                             </label>
                         </div>
 
